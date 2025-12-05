@@ -2,28 +2,27 @@ version: 0.2
 
 env:
   variables:
-    ECR_REPO: "943708588556.dkr.ecr.us-east-2.amazonaws.com/flow-phenograph"
     AWS_REGION: "us-east-2"
+    ECR_REPO: "943708588556.dkr.ecr.us-east-2.amazonaws.com/flow-phenograph"
 
 phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
       - aws --version
-      - $(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO)
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
 
   build:
     commands:
       - echo "Building Docker image..."
       - docker build -t flow-phenograph:latest .
-      - echo "Tagging image..."
       - docker tag flow-phenograph:latest $ECR_REPO:latest
 
   post_build:
     commands:
-      - echo "Pushing image to ECR..."
+      - echo "Pushing Docker image..."
       - docker push $ECR_REPO:latest
-      - echo "Build completed successfully."
+      - echo "Build complete!"
 
 artifacts:
   files:
