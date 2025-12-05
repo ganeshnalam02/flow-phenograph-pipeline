@@ -9,21 +9,16 @@ phases:
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
-      - aws --version
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
 
   build:
     commands:
-      - echo "Building Docker image..."
+      - echo "Building Docker image (no flowcore-base)..."
       - docker build -t flow-phenograph:latest .
       - docker tag flow-phenograph:latest $ECR_REPO:latest
 
   post_build:
     commands:
-      - echo "Pushing Docker image..."
+      - echo "Pushing Docker image to ECR..."
       - docker push $ECR_REPO:latest
-      - echo "Build complete!"
-
-artifacts:
-  files:
-    - '**/*'
+      - echo "Build completed successfully!"
