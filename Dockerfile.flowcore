@@ -1,15 +1,7 @@
-# Minimal image for testing flowCore installation
 FROM bioconductor/bioconductor_docker:RELEASE_3_17
 
-# Ensure dependencies are updated
 RUN apt-get update && apt-get install -y \
-    libssl-dev libcurl4-openssl-dev libxml2-dev libhdf5-dev \
+    libhdf5-dev libgsl-dev libssl-dev libcurl4-openssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install flowCore explicitly
-RUN R -e "BiocManager::install('flowCore', ask = FALSE)"
-
-# Test installation
-RUN R -e "library(flowCore); sessionInfo()"
-
-CMD ["R"]
+RUN R -e "install.packages(c('flowCore','cytolib','RProtoBufLib'), repos='https://cloud.r-project.org/')"
