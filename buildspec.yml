@@ -8,17 +8,26 @@ env:
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+      - echo "Logging into ECR..."
+      - aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin $ECR_REPO
 
   build:
     commands:
-      - echo "Building Docker image (no flowcore-base)..."
-      - docker build -t flow-phenograph:latest .
+      - echo "===== Step 1: Build flowcore-base image ====="
+      - docker build -f Dockerfile.flowcore -t flowcore-base:latest .
+
+      - echo "===== Step 2: Build final phenograph image ====="
+      - docker build -f Dockerfile -t flow-phenograph:latest .
+
+      - echo "===== Step 3: Tag final image for ECR ====="
       - docker tag flow-phenograph:latest $ECR_REPO:latest
 
   post_build:
     commands:
-      - echo "Pushing Docker image to ECR..."
+      - echo "Pushing final phenograph image to ECR..."
       - docker push $ECR_REPO:latest
-      - echo "Build completed successfully!"
+
+artifacts:
+  files:
+    - buildspec.yml
